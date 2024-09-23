@@ -1,0 +1,58 @@
+name: transcendence
+
+x-base: &base
+  env_file:
+    - .env
+  networks:
+    - transcendence
+  restart: unless-stopped
+  init: true
+
+services:
+  caddy:
+    <<: *base
+    container_name: caddy
+    image: caddy:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - frontend:/srv
+      - caddy_data:/data
+      - caddy_config:/config
+      - ./conf/Caddyfile:/etc/caddy/Caddyfile
+  pong:
+    <<: *base
+    container_name: pong
+    build:
+      context: backend
+      args:
+        APP_NAME: pong
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./backend/pong/
+          target: /pong/
+    healthcheck:
+      test: [ "CMD-SHELL", "python manage.py healthcheck || exit 1" ]
+      interval: 2s
+      timeout: 2s
+      retries: 5
+      start_period: 5s
+
+networks:
+  transcendence:
+    name: transcendence
+    driver: bridge
+
+volumes:
+  frontend:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: frontend
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local

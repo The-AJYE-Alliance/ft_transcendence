@@ -9,18 +9,23 @@ x-base: &base
   init: true
 
 services:
-  caddy:
+  nginx:
     <<: *base
-    container_name: caddy
-    image: caddy:alpine
+    container_name: nginx
+    build:
+      context: frontend
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./frontend/static
+          target: /usr/share/nginx/html
+    volumes:
+      - ssl-keys:/etc/ssl
+      - static-files:/static
+      - media-files:/media
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - frontend:/srv
-      - caddy_data:/data
-      - caddy_config:/config
-      - ./conf/Caddyfile:/etc/caddy/Caddyfile
   pong:
     <<: *base
     container_name: pong
@@ -28,11 +33,16 @@ services:
       context: backend
       args:
         APP_NAME: pong
+        HOST: ${NGINX_HOST}
     develop:
       watch:
         - action: sync+restart
           path: ./backend/pong/
           target: /pong/
+    volumes:
+      - ssl-keys:/etc/ssl
+      - static-files:/static
+      - media-files:/media
     healthcheck:
       test: [ "CMD-SHELL", "python manage.py healthcheck || exit 1" ]
       interval: 2s
@@ -46,13 +56,9 @@ networks:
     driver: bridge
 
 volumes:
-  frontend:
+  ssl-keys:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: frontend
-  caddy_data:
+  static-files:
     driver: local
-  caddy_config:
+  media-files:
     driver: local

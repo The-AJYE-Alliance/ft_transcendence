@@ -26,6 +26,29 @@ services:
     ports:
       - "80:80"
       - "443:443"
+  auth:
+    <<: *base
+    container_name: auth
+    build:
+      context: backend
+      args:
+        APP_NAME: auth
+        HOST: ${NGINX_HOST}
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./backend/auth/
+          target: /auth/
+    volumes:
+      - ssl-keys:/etc/ssl
+      - static-files:/static
+      - media-files:/media
+    healthcheck:
+      test: [ "CMD-SHELL", "python manage.py healthcheck || exit 1" ]
+      interval: 2s
+      timeout: 2s
+      retries: 5
+      start_period: 5s
   pong:
     <<: *base
     container_name: pong

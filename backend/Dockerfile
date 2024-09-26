@@ -22,6 +22,8 @@ RUN pip install -r requirements.txt
 FROM python:3.12-slim
 
 ARG APP_NAME
+ARG HOST
+ENV HOST=${HOST}
 ENV APP_NAME=${APP_NAME}
 
 COPY --from=builder /opt/venv /opt/venv
@@ -33,12 +35,15 @@ EXPOSE 8000
 
 RUN addgroup --gid 1001 --system app && \
     adduser --no-create-home --shell /bin/false --disabled-password --uid 1001 --system --group app && \
-    chown app:app /${APP_NAME}
+    mkdir -p /static && \
+    chown app:app /${APP_NAME} && \
+    chown app:app /static
+
 USER app
 
 COPY --chown=app:app ./${APP_NAME}/ /${APP_NAME}/
 COPY --chown=app:app docker-entrypoint.sh /docker-entrypoint.sh
 
-CMD ["./manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["daphne", "-e", "ssl:8000:privateKey=/etc/ssl/localhost.key:certKey=/etc/ssl/localhost.crt", "core.asgi:application"]
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

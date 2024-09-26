@@ -33,7 +33,7 @@ services:
       context: backend
       args:
         APP_NAME: auth
-        HOST: ${NGINX_HOST}
+        HOST: ${HOSTNAME}
     develop:
       watch:
         - action: sync+restart
@@ -56,7 +56,7 @@ services:
       context: backend
       args:
         APP_NAME: pong
-        HOST: ${NGINX_HOST}
+        HOST: ${HOSTNAME}
     develop:
       watch:
         - action: sync+restart

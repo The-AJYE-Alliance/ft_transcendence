@@ -7,6 +7,7 @@ python = "^3.12"
 Django = "^5.1.1"
 daphne = "^4.1.2"
 djangorestframework = "^3.15.2"
+twisted = {extras = ["http2", "tls"], version = "^24.7.0"}
 
 
 [build-system]

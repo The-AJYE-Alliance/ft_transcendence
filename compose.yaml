@@ -11,7 +11,7 @@ x-base: &base
 x-micro: &micro
   <<: *base
   healthcheck:
-    test: [ "CMD-SHELL", "python manage.py healthcheck || exit 1" ]
+    test: [ "CMD-SHELL", "python manage.py health_check || exit 1" ]
     interval: 2s
     timeout: 2s
     retries: 5
@@ -21,12 +21,29 @@ x-micro: &micro
     - static-files:/static
     - media-files:/media
 
+x-db: &db
+  <<: *base
+  healthcheck:
+    test: [ "CMD-SHELL", "pg_isready" ]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+  image: postgres
+  shm_size: 128mb
+  volumes:
+    - ssl-keys:/etc/ssl
+
 services:
   nginx:
     <<: *base
     container_name: nginx
     build:
       context: frontend
+    depends_on:
+      auth:
+        condition: service_healthy
+      pong:
+        condition: service_healthy
     develop:
       watch:
         - action: sync+restart
@@ -47,11 +64,23 @@ services:
       args:
         APP_NAME: auth
         HOST: ${HOSTNAME}
+    depends_on:
+      auth-db:
+        condition: service_healthy
     develop:
       watch:
         - action: sync+restart
           path: ./backend/auth/
           target: /auth/
+    env_file:
+      - auth.env
+  auth-db:
+    <<: *db
+    container_name: auth-db
+    env_file:
+      - auth.env
+    volumes:
+      - auth-db:/var/lib/postgresql/data
   pong:
     <<: *micro
     container_name: pong
@@ -60,11 +89,23 @@ services:
       args:
         APP_NAME: pong
         HOST: ${HOSTNAME}
+    depends_on:
+      pong-db:
+          condition: service_healthy
     develop:
       watch:
         - action: sync+restart
           path: ./backend/pong/
           target: /pong/
+    env_file:
+      - pong.env
+  pong-db:
+    <<: *db
+    container_name: pong-db
+    env_file:
+      - pong.env
+    volumes:
+      - pong-db:/var/lib/postgresql/data
 
 networks:
   transcendence:
@@ -77,4 +118,8 @@ volumes:
   static-files:
     driver: local
   media-files:
+    driver: local
+  auth-db:
+    driver: local
+  pong-db:
     driver: local

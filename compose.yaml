@@ -39,11 +39,6 @@ services:
     container_name: nginx
     build:
       context: frontend
-    depends_on:
-      auth:
-        condition: service_healthy
-      pong:
-        condition: service_healthy
     develop:
       watch:
         - action: sync+restart
@@ -74,6 +69,7 @@ services:
           target: /auth/
     env_file:
       - auth.env
+      - .env
   auth-db:
     <<: *db
     container_name: auth-db
@@ -99,6 +95,7 @@ services:
           target: /pong/
     env_file:
       - pong.env
+      - .env
   pong-db:
     <<: *db
     container_name: pong-db

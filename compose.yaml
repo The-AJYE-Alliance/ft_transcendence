@@ -8,6 +8,19 @@ x-base: &base
   restart: unless-stopped
   init: true
 
+x-micro: &micro
+  <<: *base
+  healthcheck:
+    test: [ "CMD-SHELL", "python manage.py healthcheck || exit 1" ]
+    interval: 2s
+    timeout: 2s
+    retries: 5
+    start_period: 5s
+  volumes:
+    - ssl-keys:/etc/ssl
+    - static-files:/static
+    - media-files:/media
+
 services:
   nginx:
     <<: *base
@@ -17,7 +30,7 @@ services:
     develop:
       watch:
         - action: sync+restart
-          path: ./frontend/static
+          path: ./frontend
           target: /usr/share/nginx/html
     volumes:
       - ssl-keys:/etc/ssl
@@ -27,7 +40,7 @@ services:
       - "80:80"
       - "443:443"
   auth:
-    <<: *base
+    <<: *micro
     container_name: auth
     build:
       context: backend
@@ -39,18 +52,8 @@ services:
         - action: sync+restart
           path: ./backend/auth/
           target: /auth/
-    volumes:
-      - ssl-keys:/etc/ssl
-      - static-files:/static
-      - media-files:/media
-    healthcheck:
-      test: [ "CMD-SHELL", "python manage.py healthcheck || exit 1" ]
-      interval: 2s
-      timeout: 2s
-      retries: 5
-      start_period: 5s
   pong:
-    <<: *base
+    <<: *micro
     container_name: pong
     build:
       context: backend
@@ -62,16 +65,6 @@ services:
         - action: sync+restart
           path: ./backend/pong/
           target: /pong/
-    volumes:
-      - ssl-keys:/etc/ssl
-      - static-files:/static
-      - media-files:/media
-    healthcheck:
-      test: [ "CMD-SHELL", "python manage.py healthcheck || exit 1" ]
-      interval: 2s
-      timeout: 2s
-      retries: 5
-      start_period: 5s
 
 networks:
   transcendence:

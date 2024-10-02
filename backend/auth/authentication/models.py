@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.utils import timezone
 from .validators import validate_alnum
-from .manager import UserManager
+
 
 class User(AbstractUser):
 	username = models.CharField(max_length=15, unique=True, validators=[MinLengthValidator(3), validate_alnum])
@@ -15,11 +15,10 @@ class User(AbstractUser):
 	created_at = models.DateTimeField(default=timezone.now)
 	friends = models.ForeignKey("self", related_name='user', on_delete=models.SET_NULL, null=True, blank=True)
 
-	objects = UserManager()
-
 	USERNAME_FIELD = 'username'
 	REQUIRED_FIELDS = ['email', 'nickname']
 
+				
 	def has_perm(self, perm, obj=None):
 		return True
 

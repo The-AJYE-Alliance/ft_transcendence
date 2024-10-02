@@ -25,4 +25,6 @@ VAULT_TOKEN="$(cat /vault/secrets/token)"
 export VAULT_TOKEN
 vault operator unseal "$(cat /vault/secrets/key)"
 
+. "/vault/scripts/pki.sh"
+
 vault status

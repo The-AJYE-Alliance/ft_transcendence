@@ -62,6 +62,7 @@ services:
     volumes:
       - vault-config:/vault/config
       - vault-data:/vault/file
+      - vault-pki:/vault/pki
       - vault-ssl:/vault/ssl
   vault-init:
     <<: *base
@@ -73,7 +74,8 @@ services:
     image: hashicorp/vault:1.17
     restart: no
     volumes:
-      - ./vault/scripts/init.sh:/vault/scripts/init.sh
+      - ./vault/scripts:/vault/scripts
+      - vault-pki:/vault/pki
       - vault-secrets:/vault/secrets
       - vault-ssl:/vault/ssl
   auth:
@@ -142,5 +144,6 @@ volumes:
   ssl-keys:
   vault-config:
   vault-data:
+  vault-pki:
   vault-secrets:
   vault-ssl:

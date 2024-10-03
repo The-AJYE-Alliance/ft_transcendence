@@ -1,10 +1,10 @@
 from django.urls import path, include
-from .models import User
-from rest_framework import routers, serializers, viewsets
-from .serializers import UserSerializer
-from . import views
+from rest_framework.routers import DefaultRouter
+from .views import UserViewSet
 
+router = DefaultRouter()
+router.register(r'users', UserViewSet, basename='user')
 
 urlpatterns = [
-    path('users/', views.users_list),
+    path('api/', include(router.urls)),
 ]

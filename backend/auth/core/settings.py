@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -43,11 +45,18 @@ INSTALLED_APPS = [
     'health_check',
     'health_check.db',
     'rest_framework',
-    'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'django_otp',
     'django_otp.plugins.otp_totp',
+    'django_otp.plugins.otp_',
+
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 PKI_INIT_FILE=/vault/pki/pki.init
 if [ -f "${PKI_INIT_FILE}" ]; then
   echo "${PKI_INIT_FILE} exists. Vault pki already initialized."

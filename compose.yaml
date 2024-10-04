@@ -5,6 +5,8 @@ x-base: &base
     - .env
   networks:
     - transcendence
+  volumes:
+    - vault-ca:/ca
   restart: unless-stopped
   init: true
 
@@ -17,7 +19,6 @@ x-micro: &micro
     retries: 5
     start_period: 5s
   volumes:
-    - ssl-keys:/etc/ssl
     - static-files:/static
     - media-files:/media
 
@@ -30,8 +31,6 @@ x-db: &db
     retries: 5
   image: postgres
   shm_size: 128mb
-  volumes:
-    - ssl-keys:/etc/ssl
 
 services:
   nginx:
@@ -141,7 +140,7 @@ volumes:
   media-files:
   pong-db:
   static-files:
-  ssl-keys:
+  vault-ca:
   vault-config:
   vault-data:
   vault-pki:

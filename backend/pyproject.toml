@@ -11,6 +11,7 @@ twisted = {extras = ["http2", "tls"], version = "^24.7.0"}
 psycopg = {extras = ["binary"], version = "^3.2.2"}
 django-health-check = "^3.18.3"
 djangorestframework-simplejwt = "^5.3.1"
+django-otp = "^1.5.4"
 
 
 [build-system]

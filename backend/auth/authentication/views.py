@@ -1,6 +1,9 @@
 from rest_framework import viewsets
 from .models import User
 from .serializers import UserSerializer
+import logging
+
+logger = logging.getLogger(__name__)
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()  # Récupère tous les utilisateurs
@@ -20,7 +23,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             key='access',
             value=response.data['access'],
             httponly=True,  # Protège le cookie des accès JavaScript
-            secure=False,    # Assure que le cookie est transmis uniquement sur HTTPS
+            secure=True,    # Assure que le cookie est transmis uniquement sur HTTPS
             samesite='Lax', # Limite l'utilisation du cookie aux requêtes de même site
         )
 
@@ -30,7 +33,12 @@ from rest_framework.views import APIView
 
 class LogoutView(APIView):
     def post(self, request):
+        user = request.user
+        if user.is_authenticated:
+            logger.info("Entered if condition")
+            user.is_active = False
+            user.save()
         response = Response(status=status.HTTP_204_NO_CONTENT)
         response.delete_cookie('access')  # Effacer le cookie contenant le JWT
-        print("deconnexion reussie")
         return response
+    

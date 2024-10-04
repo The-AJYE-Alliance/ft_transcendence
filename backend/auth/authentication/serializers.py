@@ -6,14 +6,12 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'nickname', 'email', 'avatar', 'is_active', 'is_admin', 'created_at', 'friends', 'password']
-        read_only_fields = ['created_at', 'is_admin']  # Champ en lecture seule
+        fields = ('id', 'username', 'nickname', 'email', 'avatar', 'is_active', 'is_superuser', 'is_staff', 'created_at', 'friends', 'password')
+        read_only_fields = ['created_at', 'is_superuser']  # Champ en lecture seule
 
     def create(self, validated_data):
         # Hachage du mot de passe lors de la création de l'utilisateur
-        user = User(**validated_data)
-        user.set_password(validated_data['password'])  # Utilise set_password pour hacher le mot de passe
-        user.save()
+        user = User.objects.create_user(**validated_data)
         return user
 
     def update(self, instance, validated_data):

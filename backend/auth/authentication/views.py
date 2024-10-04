@@ -1,6 +1,13 @@
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from .models import User
 from .serializers import UserSerializer
+from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.response import Response
+from rest_framework import status
 import logging
 
 logger = logging.getLogger(__name__)
@@ -8,11 +15,6 @@ logger = logging.getLogger(__name__)
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()  # Récupère tous les utilisateurs
     serializer_class = UserSerializer  # Utilise le serializer pour convertir les données
-
-
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.response import Response
-from rest_framework import status
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
@@ -29,16 +31,16 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
         return response
 
-from rest_framework.views import APIView
-
 class LogoutView(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def post(self, request):
-        user = request.user
-        if user.is_authenticated:
-            logger.info("Entered if condition")
-            user.is_active = False
-            user.save()
-        response = Response(status=status.HTTP_204_NO_CONTENT)
-        response.delete_cookie('access')  # Effacer le cookie contenant le JWT
-        return response
+        try:
+            refresh_token = request.data['refresh_token']
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
     

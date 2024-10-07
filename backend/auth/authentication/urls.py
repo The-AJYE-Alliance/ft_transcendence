@@ -9,6 +9,7 @@ router.register(r'users', UserViewSet, basename='user')
 urlpatterns = [
     path('', include(router.urls)),
     path('login/', CookieTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('login/refresh', CookieTokenRefreshView.as_view(), name='token_refresh'),
+    path('login/refresh/', CookieTokenRefreshView.as_view(), name='token_refresh'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    # path('users/<int:pk>/update/', UserViewSet.as_view({'put': 'update_user', 'patch': 'update_user'}), name='user-update'),
 ]

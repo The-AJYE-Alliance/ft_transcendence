@@ -21,7 +21,6 @@ x-micro: &micro
   volumes:
     - static-files:/static
     - media-files:/media
-    - vault-ssl:/etc/ssl
 
 x-db: &db
   <<: *base
@@ -106,6 +105,8 @@ services:
     env_file:
       - auth.env
       - .env
+    volumes:
+      - auth-ssl:/etc/ssl
   auth-db:
     <<: *db
     container_name: auth-db
@@ -132,6 +133,8 @@ services:
     env_file:
       - pong.env
       - .env
+    volumes:
+      - pong-ssl:/etc/ssl
   pong-db:
     <<: *db
     container_name: pong-db
@@ -147,9 +150,11 @@ networks:
 
 volumes:
   auth-db:
+  auth-ssl:
   media-files:
   nginx-ssl:
   pong-db:
+  pong-ssl:
   static-files:
   vault-ca:
   vault-config:

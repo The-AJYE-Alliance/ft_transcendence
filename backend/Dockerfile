@@ -33,6 +33,9 @@ ENV APP_NAME ${APP_NAME}
 ENV VIRTUAL_ENV /${APP_NAME}/.venv
 ENV PATH="/${APP_NAME}/.venv/bin:$PATH"
 
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl openssl jq
+
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
 WORKDIR /${APP_NAME}
@@ -47,9 +50,10 @@ USER app
 
 COPY --chown=app:app ./${APP_NAME}/ /${APP_NAME}/
 COPY --chown=app:app docker-entrypoint.sh /docker-entrypoint.sh
+COPY --chown=app:app generate-ssl-certificate.sh /generate-ssl-certificate.sh
 
 EXPOSE 8000
 
-CMD exec daphne -e ssl:8000:privateKey=/etc/ssl/key.pem:certKey=/etc/ssl/cert.pem core.asgi:application
+CMD exec daphne -e ssl:8000:privateKey=/etc/ssl/${APP_NAME}.api.${HOST}.key:certKey=/etc/ssl/${APP_NAME}.api.${HOST}.crt core.asgi:application
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

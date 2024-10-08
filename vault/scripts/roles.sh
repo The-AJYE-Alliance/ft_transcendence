@@ -15,7 +15,7 @@ if [ -f "${APP_INIT_FILE}" ]; then
   echo "${APP_INIT_FILE} exists. Vault already initialized for ${APP}."
 else
   echo "Enabling Secrets Engine for ${APP}..."
-  vault secrets enable -path="${APP}" kv-v2
+  vault secrets enable -path="${APP}-kv" kv-v2
 
   echo "Creating ${APP} Policy..."
   vault policy write "${APP}" /vault/policies/"${APP}".hcl

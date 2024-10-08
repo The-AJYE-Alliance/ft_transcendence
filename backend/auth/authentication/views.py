@@ -12,6 +12,7 @@ from rest_framework import status
 from .models import User
 from .serializers import UserSerializer
 
+
 class IsAccountAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         # Si l'utilisateur est un admin/staff, il a accès à toutes les actions
@@ -48,6 +49,21 @@ class UserViewSet(viewsets.ModelViewSet):
     #         serializer.save()
     #         return Response(serializer.data, status=status.HTTP_200_OK)
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class UserViewSet(viewsets.ModelViewSet):
+# 	queryset = User.objects.all()
+# 	serializer_class = UserSerializer
+# 	authentication_classes = [JWTAuthentication]
+    
+# 	def get_permissions(self):
+# 		if self.action == 'create':
+# 			permission_classes = [AllowAny]
+# 		elif self.action in ['update', 'destroy', 'retrieve']:
+# 			permission_classes = [IsAuthenticated, IsOwner | IsAdminUser]
+# 		else:
+# 			permission_classes = [IsAdminUser]
+# 		return [permission() for permission in permission_classes]
 
 
 class CookieTokenRefreshSerializer(TokenRefreshSerializer):
@@ -92,3 +108,29 @@ class LogoutView(APIView):
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+# @api_view(['POST'])
+# def send_mymail(request):
+# 	from_mail = "ponggame@mail.com"
+# 	user_email = request.data.get('email')
+# 	# verification_token = get_random_string(length=32)
+# 	verication_token = "true email"
+
+# 	try:
+# 		verification_link = f"http://localhost:8000/api/verify-email/?token={verification_token}"
+# 		send_mail(
+# 			'Pong game email checking',
+# 			f'Click the link to activate your account : {verification_link}',
+# 			from_mail,
+# 			[user_email],
+# 			fail_silently=False,
+#         )
+# 		return Response({"message": "Send verification mail successfully !"}, status=status.HTTP_200_OK)
+# 	except Exception as e:
+# 		return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# @api_view(['GET'])
+# def mail_verified(request):
+# 	token = request.data.get('token')
+# 	if token and token == "true email"

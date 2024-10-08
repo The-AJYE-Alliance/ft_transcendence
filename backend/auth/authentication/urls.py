@@ -12,4 +12,6 @@ urlpatterns = [
     path('login/refresh/', CookieTokenRefreshView.as_view(), name='token_refresh'),
     path('logout/', LogoutView.as_view(), name='logout'),
     # path('users/<int:pk>/update/', UserViewSet.as_view({'put': 'update_user', 'patch': 'update_user'}), name='user-update'),
+    # path('verify-email/', views.send_mymail),
+	# path('email-verified/', views.mail_verified),
 ]

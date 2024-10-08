@@ -1,3 +1,3 @@
-path "pki_int/roles/nginx" {
+path "pki_int/issue/nginx" {
   capabilities = ["create", "read", "update", "patch", "delete", "list"]
 }

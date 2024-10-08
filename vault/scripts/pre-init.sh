@@ -8,7 +8,7 @@ if [ ! -f /vault/ssl/key.pem ] || [ ! -f /vault/ssl/cert.pem ]; then
     -keyout /vault/ssl/key.pem -days 365 -subj "/C=FR/O=Ecole 42/OU=42.fr/CN=vault" \
     -addext "subjectAltName=DNS:vault"
   chmod 644 /vault/ssl/cert.pem /vault/ssl/key.pem
-  cp /vault/ssl/cert.pem /ca/ca.pem
+  cp /vault/ssl/cert.pem /vault/ca/ca.pem
 fi
 
 . "docker-entrypoint.sh" "$@"

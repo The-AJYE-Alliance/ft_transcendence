@@ -21,6 +21,7 @@ x-micro: &micro
   volumes:
     - static-files:/static
     - media-files:/media
+    - vault-ssl:/etc/ssl
 
 x-db: &db
   <<: *base
@@ -38,15 +39,22 @@ services:
     container_name: nginx
     build:
       context: frontend
+    depends_on:
+      auth:
+        condition: service_healthy
     develop:
       watch:
         - action: sync+restart
           path: ./frontend
           target: /usr/share/nginx/html
+    environment:
+      - APP_RID=${NGINX_RID}
+      - APP_SID=${NGINX_SID}
     volumes:
       - media-files:/media
       - static-files:/static
-      - ssl-keys:/etc/ssl
+      - nginx-ssl:/etc/ssl
+      - vault-ca:/ca
     ports:
       - "80:80"
       - "443:443"
@@ -59,6 +67,7 @@ services:
       - IPC_LOCK
     command: ["vault", "server", "-config=/vault/config/config.hcl"]
     volumes:
+      - vault-ca:/vault/ca
       - vault-config:/vault/config
       - vault-data:/vault/file
       - vault-pki:/vault/pki
@@ -74,6 +83,7 @@ services:
     restart: no
     volumes:
       - ./vault/scripts:/vault/scripts
+      - ./vault/policies:/vault/policies
       - vault-pki:/vault/pki
       - vault-secrets:/vault/secrets
       - vault-ssl:/vault/ssl
@@ -138,6 +148,7 @@ networks:
 volumes:
   auth-db:
   media-files:
+  nginx-ssl:
   pong-db:
   static-files:
   vault-ca:

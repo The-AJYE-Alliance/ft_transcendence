@@ -1,6 +1,5 @@
-DOCKER := 'docker compose'
-APP_1 := "auth"
-APP_2 := "pong"
+DOCKER := 'docker --log-level ERROR compose'
+APPS := "nginx"
 RED := '\033[1;31m'
 GREEN := '\033[1;32m'
 YELLOW := '\033[1;33m'
@@ -20,11 +19,16 @@ build: _env
 	{{DOCKER}} build
 
 up: _env
-	@echo "{{GREEN}}██████████████████████ Running Containers ██████████████████████{{RESET}}"
-	@{{DOCKER}} up -d
-	@echo "{{RED}}╔════════════════════════════║NOTE:║════════════════════════╗{{RESET}}"
-	@echo "{{RED}}║   {{BLUE}} You can see The Containers logs using {{YELLOW}}just logs        {{RED}}║{{RESET}}"
-	@echo "{{RED}}╚═══════════════════════════════════════════════════════════╝{{RESET}}"
+    #!/usr/bin/env bash
+    @echo "{{GREEN}}██████████████████████ Running Containers ██████████████████████{{RESET}}"
+    docker --log-level ERROR compose up -d vault vault-init
+    while [ "$(docker --log-level ERROR compose exec vault-init "echo "Waiting..." 2>&1 /dev/null")" ]; do
+      true
+    done
+    . "./vault/scripts/launch.sh" {{APPS}}
+    @echo "{{RED}}╔════════════════════════════║NOTE:║════════════════════════╗{{RESET}}"
+    @echo "{{RED}}║   {{BLUE}} You can see The Containers logs using {{YELLOW}}just logs        {{RED}}║{{RESET}}"
+    @echo "{{RED}}╚═══════════════════════════════════════════════════════════╝{{RESET}}"
 
 logs:
 	@echo "{{GREEN}}██████████████████████ Running Containers ██████████████████████{{RESET}}"
@@ -44,18 +48,22 @@ start:
 
 down:
 	@echo "{{RED}}██████████████████ Removing All Containers ██████████████████{{RESET}}"
-	{{DOCKER}} down
+	{{DOCKER}} down --remove-orphans -v
+
+watch: build
+    @echo "{{GREEN}}██████████████████████ Watching Containers... ██████████████████████{{RESET}}"
+    {{DOCKER}} up --watch
 
 shell c="":
     {{DOCKER}} exec -it {{c}} sh
 
 migrations:
     @echo "{{BLUE}}██████████████████████ Making Migrations ██████████████████████{{RESET}}"
-    {{DOCKER}} exec {{APP_1}} python manage.py makemigrations
-    {{DOCKER}} exec {{APP_2}} python manage.py makemigrations
+    python ./backend/auth/manage.py makemigrations
+    python ./backend/pong/manage.py makemigrations
 
 _env:
-    #!/bin/bash
+    #!/usr/bin/env bash
     set -euo pipefail
     if test ! -e .env; then
       echo -e "{{YELLOW}}Copying .env files...{{RESET}}\n"

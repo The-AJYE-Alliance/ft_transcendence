@@ -50,6 +50,6 @@ COPY --chown=app:app docker-entrypoint.sh /docker-entrypoint.sh
 
 EXPOSE 8000
 
-CMD exec daphne -e ssl:8000:privateKey=/etc/ssl/$HOST.key:certKey=/etc/ssl/$HOST.crt core.asgi:application
+CMD exec daphne -e ssl:8000:privateKey=/etc/ssl/key.pem:certKey=/etc/ssl/cert.pem core.asgi:application
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

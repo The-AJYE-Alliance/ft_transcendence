@@ -27,4 +27,6 @@ vault operator unseal "$(cat /vault/secrets/key)"
 
 . "/vault/scripts/pki.sh"
 
+APP=nginx . "/vault/scripts/roles.sh"
+
 vault status

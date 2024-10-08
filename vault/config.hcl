@@ -2,7 +2,7 @@ ui = true
 api_addr = "https://vault:8200"
 
 storage "file" {
-  path = "/vault/data"
+  path = "/vault/file"
 }
 
 listener "tcp" {

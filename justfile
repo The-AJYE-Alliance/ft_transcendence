@@ -1,5 +1,5 @@
 DOCKER := 'docker --log-level ERROR compose'
-APPS := "nginx"
+APPS := "auth nginx pong"
 RED := '\033[1;31m'
 GREEN := '\033[1;32m'
 YELLOW := '\033[1;33m'
@@ -18,17 +18,13 @@ build: _env
 	@echo "{{BLUE}}██████████████████████ Building Images ███████████████████████{{RESET}}"
 	{{DOCKER}} build
 
-up: _env
+up: _env _before && _after
     #!/usr/bin/env bash
-    @echo "{{GREEN}}██████████████████████ Running Containers ██████████████████████{{RESET}}"
     docker --log-level ERROR compose up -d vault vault-init
     while [ "$(docker --log-level ERROR compose exec vault-init "echo "Waiting..." 2>&1 /dev/null")" ]; do
       true
     done
     . "./vault/scripts/launch.sh" {{APPS}}
-    @echo "{{RED}}╔════════════════════════════║NOTE:║════════════════════════╗{{RESET}}"
-    @echo "{{RED}}║   {{BLUE}} You can see The Containers logs using {{YELLOW}}just logs        {{RED}}║{{RESET}}"
-    @echo "{{RED}}╚═══════════════════════════════════════════════════════════╝{{RESET}}"
 
 logs:
 	@echo "{{GREEN}}██████████████████████ Running Containers ██████████████████████{{RESET}}"
@@ -71,5 +67,13 @@ _env:
       cp auth.env.example auth.env
       cp pong.env.example pong.env
     fi
+
+_before:
+    @echo "{{GREEN}}██████████████████████ Running Containers ██████████████████████{{RESET}}"
+
+_after:
+    @echo "{{RED}}╔════════════════════════════║NOTE:║════════════════════════╗{{RESET}}"
+    @echo "{{RED}}║   {{BLUE}} You can see The Containers logs using {{YELLOW}}just logs        {{RED}}║{{RESET}}"
+    @echo "{{RED}}╚═══════════════════════════════════════════════════════════╝{{RESET}}"
 
 reload: down build up

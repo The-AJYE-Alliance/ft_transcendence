@@ -44,6 +44,10 @@ start:
 
 down:
 	@echo "{{RED}}██████████████████ Removing All Containers ██████████████████{{RESET}}"
+	{{DOCKER}} down --remove-orphans
+
+rm:
+	@echo "{{RED}}██████████████████ Removing All Containers and Volumes ██████████████████{{RESET}}"
 	{{DOCKER}} down --remove-orphans -v
 
 watch: build

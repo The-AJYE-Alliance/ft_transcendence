@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'health_check',
     'health_check.db',
     'rest_framework',
-    'game'
+    'game',
+	'auth.authentication',
 ]
 
 MIDDLEWARE = [

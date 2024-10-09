@@ -15,8 +15,7 @@ echo "Certificate expired or missing, generating new certificate..."
 RESULT=$(curl --cacert /ca/ca.pem -s --header "X-Vault-Token: $APP_TOKEN" \
   --request POST \
   --data "{\"common_name\":\"${HOSTNAME}\",\"ttl\":\"450h\"}" \
-  "$VAULT_ADDR/v1/pki_int/issue/${APP_NAME}")
+  "$VAULT_ADDR/v1/pki_int/issue/domain")
 
 echo "$RESULT" | sed 's/$/\\n/' | tr -d '\n' | sed -e 's/“/"/g' -e 's/”/"/g' | sed '$ s/\\n$//' | jq -r .data.certificate | tee /etc/ssl/"${HOSTNAME}".crt
 echo "$RESULT" | sed 's/$/\\n/' | tr -d '\n' | sed -e 's/“/"/g' -e 's/”/"/g' | sed '$ s/\\n$//' | jq -r .data.private_key | tee /etc/ssl/"${HOSTNAME}".key
-echo /etc/ssl/"${HOSTNAME}".key

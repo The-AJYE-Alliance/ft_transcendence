@@ -18,9 +18,6 @@ x-micro: &micro
     timeout: 2s
     retries: 5
     start_period: 5s
-  volumes:
-    - static-files:/static
-    - media-files:/media
 
 x-db: &db
   <<: *base
@@ -102,11 +99,17 @@ services:
         - action: sync+restart
           path: ./backend/auth/
           target: /auth/
+    environment:
+      - APP_RID=${AUTH_RID}
+      - APP_SID=${AUTH_SID}
     env_file:
       - auth.env
       - .env
     volumes:
       - auth-ssl:/etc/ssl
+      - media-files:/media
+      - static-files:/static
+      - vault-ca:/ca
   auth-db:
     <<: *db
     container_name: auth-db
@@ -130,11 +133,17 @@ services:
         - action: sync+restart
           path: ./backend/pong/
           target: /pong/
+    environment:
+      - APP_RID=${PONG_RID}
+      - APP_SID=${PONG_SID}
     env_file:
       - pong.env
       - .env
     volumes:
+      - media-files:/media
       - pong-ssl:/etc/ssl
+      - static-files:/static
+      - vault-ca:/ca
   pong-db:
     <<: *db
     container_name: pong-db

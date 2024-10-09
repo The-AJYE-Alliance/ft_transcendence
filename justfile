@@ -21,10 +21,10 @@ build: _env
 up: _env _before && _after
     #!/usr/bin/env bash
     docker --log-level ERROR compose up -d vault vault-init
-    while [ "$(docker --log-level ERROR compose exec vault-init "echo "Waiting..." 2>&1 /dev/null")" ]; do
+    until docker logs vault-init |& grep -w 'Vault init done.' &> /dev/null; do
       true
     done
-    . "./vault/scripts/launch.sh" {{APPS}}
+    . "./vault/scripts/launch.sh" "{{APPS}}"
 
 logs:
 	@echo "{{GREEN}}██████████████████████ Running Containers ██████████████████████{{RESET}}"

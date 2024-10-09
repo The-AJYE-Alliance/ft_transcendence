@@ -20,7 +20,7 @@ else
     common_name="Transcendence Local Intermediate Authority" \
     o="Transcendence" ou="Ecole 42" key_type="rsa" key_bits="4096" max_depth_len=1 \
     permitted_dns_domains="${HOSTNAME},localhost,127.0.0.1" ttl="876000h"
-  vault write pki_int/roles/nginx issuer_ref="$(vault read -field=default pki_int/config/issuers)" \
+  vault write pki_int/roles/domain issuer_ref="$(vault read -field=default pki_int/config/issuers)" \
     allowed_domains="${HOSTNAME}",localhost,127.0.0.1,host.docker.internal \
     allow_subdomains=true allow_bare_domains=true require_cn=false server_flag=true max_ttl=8670h
   touch ${PKI_INIT_FILE}

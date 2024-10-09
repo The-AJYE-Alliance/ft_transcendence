@@ -18,7 +18,7 @@ else
   vault secrets enable -path="${APP}-kv" kv-v2
 
   echo "Creating ${APP} Policy..."
-  vault policy write "${APP}" /vault/policies/"${APP}".hcl
+  vault policy write "${APP}" /vault/policies/domain.hcl
 
   echo "Creating ${APP} Approle Auth Backend..."
   vault write auth/approle/role/"${APP}" token_policies="${APP}" token_tll=2h token_max_ttl=6h

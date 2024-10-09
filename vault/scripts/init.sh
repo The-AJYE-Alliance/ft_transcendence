@@ -32,3 +32,4 @@ APP=nginx . "/vault/scripts/roles.sh"
 APP=pong . "/vault/scripts/roles.sh"
 
 vault status
+echo "Vault init done."

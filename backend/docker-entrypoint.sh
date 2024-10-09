@@ -3,7 +3,7 @@ set -e
 
 echo "Starting Django..."
 
-. /generate-ssl-certificate.sh
+. "/generate-ssl-certificate.sh"
 
 echo "Applying database migrations..."
 python manage.py migrate --noinput

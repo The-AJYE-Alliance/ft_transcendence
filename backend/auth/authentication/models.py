@@ -7,11 +7,10 @@ from .manager import UserManager
 
 class User(AbstractUser, PermissionsMixin):
 	username = models.CharField(max_length=15, unique=True, validators=[MinLengthValidator(3), validate_alnum])
-	nickname = models.CharField(max_length=30, blank=True, null=True)
+	nickname = models.CharField(max_length=30, unique=True, blank=True, null=True)
 	email = models.EmailField(unique=True, blank=False, null=False)
 	avatar = models.URLField(blank=True, null=True, default='default_avatar_url')
-	friends = models.ForeignKey("self", related_name='user', on_delete=models.SET_NULL, null=True, blank=True)
-	# friends = models.ManyToManyField('self', related_name='friend_set', symmetrical=False, blank=True)
+	friends = models.ManyToManyField('self', related_name='friend_set', symmetrical=False, blank=True)
 
 	USERNAME_FIELD = 'username'
 	REQUIRED_FIELDS = ['email', 'nickname']

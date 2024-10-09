@@ -1,6 +1,5 @@
-#!/bin/sh
+#!/bin/bash
 set -ex
-apk add --no-cache jq
 
 INIT_FILE=/vault/secrets/vault.init
 export VAULT_CACERT=/vault/ssl/cert.pem
@@ -27,9 +26,11 @@ vault operator unseal "$(cat /vault/secrets/key)"
 
 . "/vault/scripts/pki.sh"
 
-APP=auth . "/vault/scripts/roles.sh"
-APP=nginx . "/vault/scripts/roles.sh"
-APP=pong . "/vault/scripts/roles.sh"
+IFS=' ' read -r -a araps <<< "${APPS}"
+
+for app in "${araps[@]}"; do
+  APP=${app} . "/vault/scripts/roles.sh"
+done
 
 vault status
 echo "Vault init done."

@@ -1,0 +1,8 @@
+FROM hashicorp/vault:1.17
+
+RUN apk add --no-cache jq bash
+
+COPY scripts /vault/scripts
+COPY policies /vault/policies
+
+CMD ["bash", "/vault/scripts/init.sh"]

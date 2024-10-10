@@ -15,6 +15,7 @@ from rest_framework.decorators import api_view
 from .models import User
 from .serializers import UserSerializer
 from .permissions import IsOwner
+import requests
 
 class UserViewSet(viewsets.ModelViewSet):
 	queryset = User.objects.all()
@@ -49,7 +50,55 @@ class UserViewSet(viewsets.ModelViewSet):
 		user.save() 
 		return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
      
-     
+	@action(detail=False, methods=['post'], permission_classes=[AllowAny], url_path='login/42')
+	def login_with_42(self, request):
+		code = request.data.get('code')
+		if not code:
+			return Response({"error": "Authorization code is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+		# Échange du code contre un token d'accès
+		token_url = 'https://api.intra.42.fr/oauth/token'
+		client_id = 'YOUR_CLIENT_ID'  # Remplacez par votre client_id
+		client_secret = 'YOUR_CLIENT_SECRET'  # Remplacez par votre client_secret
+		redirect_uri = 'YOUR_REDIRECT_URI'  # Remplacez par votre URI de redirection
+
+		data = {
+			'grant_type': 'authorization_code',
+			'client_id': client_id,
+			'client_secret': client_secret,
+			'redirect_uri': redirect_uri,
+			'code': code,
+		}
+
+		response = requests.post(token_url, data=data)
+
+		if response.status_code != 200:
+			return Response(response.json(), status=status.HTTP_401_UNAUTHORIZED)
+
+		access_token = response.json().get('access_token')
+
+		# Utiliser le token pour obtenir des informations sur l'utilisateur
+		user_info_url = 'https://api.intra.42.fr/v2/me'
+		headers = {'Authorization': f'Bearer {access_token}'}
+		user_response = requests.get(user_info_url, headers=headers)
+
+		if user_response.status_code != 200:
+			return Response(user_response.json(), status=status.HTTP_401_UNAUTHORIZED)
+
+		user_data = user_response.json()
+		username = user_data.get('login')
+		email = user_data.get('email')
+
+		# Vérifier si l'utilisateur existe dans votre base de données
+		user, created = User.objects.get_or_create(username=username, defaults={'email': email})
+
+		# Gérer la connexion de l'utilisateur et la création de JWT
+		refresh = RefreshToken.for_user(user)
+		return Response({
+			'access': str(refresh.access_token),
+			'refresh': str(refresh),
+			'user': UserSerializer(user).data,
+		}, status=status.HTTP_200_OK)
 
 
 class CookieTokenRefreshSerializer(TokenRefreshSerializer):
@@ -65,6 +114,11 @@ class CookieTokenRefreshSerializer(TokenRefreshSerializer):
 
 class CookieTokenObtainPairView(TokenObtainPairView):
     def finalize_response(self, request, response, *args, **kwargs):
+        if response.status_code == 200:
+            user = User.objects.get(username=request.data['username'])
+            user.is_online = True  # Met à jour le statut en ligne lors de la connexion
+            user.save()
+        
         if response.data.get('refresh'):
             cookie_max_age = 3600 * 24 * 14 # 14 days
             response.set_cookie('refresh_token', response.data['refresh'], max_age=cookie_max_age, httponly=True)
@@ -87,6 +141,10 @@ class LogoutView(APIView):
 
     def post(self, request):
         try:
+            user = request.user
+            user.is_online = False
+            user.save()
+            
             refresh_token = request.COOKIES.get('refresh_token')
             token = RefreshToken(refresh_token)
             token.blacklist()

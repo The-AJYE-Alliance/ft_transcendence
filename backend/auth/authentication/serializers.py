@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'nickname', 'email', 'avatar', 'is_active', 'is_superuser', 'is_staff', 'friends', 'password')
+        fields = ('id', 'username', 'nickname', 'email', 'avatar', 'is_active', 'is_superuser', 'is_staff', 'friends', 'is_online', 'password')
         read_only_fields = ['is_superuser', 'id', 'is_staff', 'is_active', 'date_joined']
         extra_kwargs = {'password': {'write_only': True}}
 

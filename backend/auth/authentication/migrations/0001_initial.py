@@ -33,7 +33,6 @@ class Migration(migrations.Migration):
                 ('avatar', models.URLField(blank=True, null=True)),
                 ('is_active', models.BooleanField(default=True)),
                 ('is_admin', models.BooleanField(default=False)),
-                ('friends', models.ManyToManyField(blank=True, related_name='friend_set', to=settings.AUTH_USER_MODEL, symmetrical=False)),
                 ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
                 ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
                 ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.permission', verbose_name='user permissions')),

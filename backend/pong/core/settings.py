@@ -53,8 +53,6 @@ INSTALLED_APPS = [
     'postgresql_setrole',
     'rest_framework',
     'vault12factor',
-    'game',
-	'auth.authentication',
 ]
 
 MIDDLEWARE = [

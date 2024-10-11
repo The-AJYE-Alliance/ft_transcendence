@@ -1,3 +1,3 @@
-path "pki_int/issue/domain" {
-  capabilities = ["create", "read", "update", "patch", "delete", "list"]
+path "database/creds/auth" {
+  capabilities = ["read"]
 }

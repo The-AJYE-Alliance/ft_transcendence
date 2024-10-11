@@ -9,7 +9,9 @@ if [ -f "/etc/ssl/${HOSTNAME}.crt" ] && openssl x509 -checkend 86400 -noout -in 
   return
 fi
 
-APP_TOKEN=$(curl --cacert /ca/ca.pem -s --request POST --data "{\"role_id\": \"${APP_RID}\", \"secret_id\": \"${APP_SID}\"}" "$VAULT_ADDR"/v1/auth/approle/login | jq -r .auth.client_token)
+APP_TOKEN=$(curl --cacert /ca/ca.pem -s --request POST \
+  --data "{\"role_id\": \"${VAULT_ROLEID}\", \"secret_id\": \"${VAULT_SECRETID}\"}" \
+  "$VAULT_ADDR"/v1/auth/approle/login | jq -r .auth.client_token)
 
 echo "Certificate expired or missing, generating new certificate..."
 RESULT="$(curl --cacert /ca/ca.pem -s --header "X-Vault-Token: $APP_TOKEN" \

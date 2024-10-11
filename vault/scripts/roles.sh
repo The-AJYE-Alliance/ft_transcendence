@@ -3,6 +3,7 @@
 set -e
 
 ROLE_INIT_FILE=/vault/secrets/role.init
+SERVICE_APPS=("auth pong")
 
 if [ ! -f ${ROLE_INIT_FILE} ]; then
   echo "Enabling AppRole Auth Backend..."
@@ -17,11 +18,17 @@ else
   echo "Enabling Secrets Engine for ${APP}..."
   vault secrets enable -path="${APP}-kv" kv-v2
 
+  if [[ ${SERVICE_APPS[*]} =~ ${APP} ]]; then
   echo "Creating ${APP} Policy..."
-  vault policy write "${APP}" /vault/policies/domain.hcl
+    vault policy write "${APP}" /vault/policies/"${APP}".hcl
+  fi
 
   echo "Creating ${APP} Approle Auth Backend..."
-  vault write auth/approle/role/"${APP}" token_policies="${APP}" token_tll=2h token_max_ttl=6h
+  if [[ ${SERVICE_APPS[*]} =~ ${APP} ]]; then
+    vault write auth/approle/role/"${APP}" token_policies="${APP},domain" token_tll=2h token_max_ttl=6h
+  else
+    vault write auth/approle/role/"${APP}" token_policies="domain" token_tll=2h token_max_ttl=6h
+  fi
 
   echo "${APP} Approle creation complete."
   touch "${APP_INIT_FILE}"

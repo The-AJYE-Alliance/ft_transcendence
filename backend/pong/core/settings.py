@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
 from pathlib import Path
+from vault12factor import DjangoAutoRefreshDBCredentialsDict, VaultAuth12Factor, VaultCredentialProvider
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,21 +28,23 @@ DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1')
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default="").split(" ")
 
-
 # Application definition
 
 INSTALLED_APPS = [
-    #'daphne',
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_dbconn_retry',
+    'game',
     'health_check',
     'health_check.db',
+    'postgresql_setrole',
     'rest_framework',
-    'game'
+    'vault12factor',
 ]
 
 MIDDLEWARE = [
@@ -72,18 +75,27 @@ TEMPLATES = [
     },
 ]
 
-#ASGI_APPLICATION = 'core.asgi.application'
-WSGI_APPLICATION = 'core.wsgi.application'
+ASGI_APPLICATION = 'core.asgi.application'
 
+VAULT = VaultAuth12Factor.fromenv()
+CREDS = VaultCredentialProvider(os.getenv("VAULT_ADDR"), VAULT,
+                                    "database/creds/pong",
+                                    os.getenv("VAULT_CACERT", None), True,
+                                    DEBUG)
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default':  DjangoAutoRefreshDBCredentialsDict(CREDS, {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'pong',
+        'USER': CREDS.username,
+        'PASSWORD': CREDS.password,
+        'HOST': 'pong-db',
+        'PORT': '5432',
+        'SET_ROLE': 'owner'
+    }),
 }
 
 

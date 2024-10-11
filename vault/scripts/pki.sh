@@ -23,5 +23,6 @@ else
   vault write pki_int/roles/domain issuer_ref="$(vault read -field=default pki_int/config/issuers)" \
     allowed_domains="${HOSTNAME}",localhost,127.0.0.1,host.docker.internal \
     allow_subdomains=true allow_bare_domains=true require_cn=false server_flag=true max_ttl=8670h
+  vault policy write domain /vault/policies/domain.hcl
   touch ${PKI_INIT_FILE}
 fi

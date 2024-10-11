@@ -26,7 +26,8 @@ x-db: &db
     interval: 10s
     timeout: 5s
     retries: 5
-  image: postgres
+  build:
+    context: db
   shm_size: 128mb
 
 services:
@@ -48,8 +49,8 @@ services:
       - APP_SID=${NGINX_SID}
     volumes:
       - media-files:/media
-      - static-files:/static
       - nginx-ssl:/etc/ssl
+      - static-files:/static
       - vault-ca:/ca
     ports:
       - "80:80"
@@ -92,19 +93,15 @@ services:
       args:
         APP_NAME: auth
         HOST: ${HOSTNAME}
-    depends_on:
-      auth-db:
-        condition: service_healthy
     develop:
       watch:
         - action: sync+restart
           path: ./backend/auth/
           target: /auth/
     environment:
-      - APP_RID=${AUTH_RID}
-      - APP_SID=${AUTH_SID}
+      - VAULT_ROLEID=${AUTH_RID}
+      - VAULT_SECRETID=${AUTH_SID}
     env_file:
-      - auth.env
       - .env
     volumes:
       - auth-ssl:/etc/ssl
@@ -114,8 +111,8 @@ services:
   auth-db:
     <<: *db
     container_name: auth-db
-    env_file:
-      - auth.env
+    environment:
+      - DB_NAME=auth
     volumes:
       - auth-db:/var/lib/postgresql/data
   pong:
@@ -126,19 +123,15 @@ services:
       args:
         APP_NAME: pong
         HOST: ${HOSTNAME}
-    depends_on:
-      pong-db:
-          condition: service_healthy
     develop:
       watch:
         - action: sync+restart
           path: ./backend/pong/
           target: /pong/
     environment:
-      - APP_RID=${PONG_RID}
-      - APP_SID=${PONG_SID}
+      - VAULT_ROLEID=${PONG_RID}
+      - VAULT_SECRETID=${PONG_SID}
     env_file:
-      - pong.env
       - .env
     volumes:
       - media-files:/media
@@ -148,8 +141,8 @@ services:
   pong-db:
     <<: *db
     container_name: pong-db
-    env_file:
-      - pong.env
+    environment:
+      - DB_NAME=pong
     volumes:
       - pong-db:/var/lib/postgresql/data
 

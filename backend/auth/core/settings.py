@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
-
+from vault12factor import DjangoAutoRefreshDBCredentialsDict, VaultAuth12Factor, VaultCredentialProvider
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,6 +29,11 @@ DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1')
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default="").split(" ")
 
+VAULT_DATABASE_PATH = 'database/creds/auth'
+VAULT_CACERT = '/ca/ca.pem'
+DATABASE_URL = 'postgres://auth-db:5432/auth'
+DATABASE_OWNERROLE = 'auth'
+
 
 # Application definition
 
@@ -41,13 +46,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_dbconn_retry',
+    'django_otp',
+    'django_otp.plugins.otp_totp',
     'health_check',
     'health_check.db',
+    'postgresql_setrole',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
-    'django_otp',
-    'django_otp.plugins.otp_totp',
+    'vault12factor',
 ]
 
 REST_FRAMEWORK = {
@@ -85,21 +93,28 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'core.wsgi.application'
+ASGI_APPLICATION = 'core.asgi.application'
 
+
+VAULT = VaultAuth12Factor.fromenv()
+CREDS = VaultCredentialProvider(os.getenv("VAULT_ADDR"), VAULT,
+                                    "database/creds/auth",
+                                    os.getenv("VAULT_CACERT", None), True,
+                                    DEBUG)
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'default': DjangoAutoRefreshDBCredentialsDict(CREDS, {
         'ENGINE': 'django.db.backends.postgresql',
-        "NAME": os.getenv("POSTGRES_DB"),
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": os.getenv("POSTGRES_HOST"),
-        "PORT": "5432",
-    }
+        'NAME': 'auth',
+        'USER': CREDS.username,
+        'PASSWORD': CREDS.password,
+        'HOST': 'auth-db',
+        'PORT': '5432',
+        'SET_ROLE': 'owner'
+    }),
 }
 
 

@@ -28,6 +28,14 @@ DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1')
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default="").split(" ")
 
+VAULT_DATABASE_PATH = 'database/creds/pong'
+
+VAULT_CACERT = '/ca/ca.pem'
+
+DATABASE_URL = 'postgres://pong-db:5432/pong'
+
+DATABASE_OWNERROLE = 'pong'
+
 # Application definition
 
 INSTALLED_APPS = [

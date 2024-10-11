@@ -5,6 +5,8 @@ x-base: &base
     - .env
   networks:
     - transcendence
+  volumes:
+    - vault-ca:/ca
   restart: unless-stopped
   init: true
 
@@ -16,10 +18,6 @@ x-micro: &micro
     timeout: 2s
     retries: 5
     start_period: 5s
-  volumes:
-    - ssl-keys:/etc/ssl
-    - static-files:/static
-    - media-files:/media
 
 x-db: &db
   <<: *base
@@ -28,10 +26,9 @@ x-db: &db
     interval: 10s
     timeout: 5s
     retries: 5
-  image: postgres
+  build:
+    context: db
   shm_size: 128mb
-  volumes:
-    - ssl-keys:/etc/ssl
 
 services:
   nginx:
@@ -39,18 +36,55 @@ services:
     container_name: nginx
     build:
       context: frontend
+    depends_on:
+      auth:
+        condition: service_healthy
     develop:
       watch:
         - action: sync+restart
           path: ./frontend
           target: /usr/share/nginx/html
+    environment:
+      - APP_RID=${NGINX_RID}
+      - APP_SID=${NGINX_SID}
     volumes:
-      - ssl-keys:/etc/ssl
-      - static-files:/static
       - media-files:/media
+      - nginx-ssl:/etc/ssl
+      - static-files:/static
+      - vault-ca:/ca
     ports:
       - "80:80"
       - "443:443"
+  vault:
+    <<: *base
+    container_name: vault
+    build:
+      context: vault
+      dockerfile: Dockerfile.server
+    cap_add:
+      - IPC_LOCK
+    command: ["vault", "server", "-config=/vault/config/config.hcl"]
+    volumes:
+      - vault-ca:/vault/ca
+      - vault-config:/vault/config
+      - vault-data:/vault/file
+      - vault-pki:/vault/pki
+      - vault-ssl:/vault/ssl
+  vault-init:
+    <<: *base
+    container_name: vault-init
+    build:
+      context: vault
+      dockerfile: Dockerfile.init
+    depends_on:
+      vault:
+        condition: service_started
+    image: hashicorp/vault:1.17
+    restart: no
+    volumes:
+      - vault-pki:/vault/pki
+      - vault-secrets:/vault/secrets
+      - vault-ssl:/vault/ssl
   auth:
     <<: *micro
     container_name: auth
@@ -59,22 +93,26 @@ services:
       args:
         APP_NAME: auth
         HOST: ${HOSTNAME}
-    depends_on:
-      auth-db:
-        condition: service_healthy
     develop:
       watch:
         - action: sync+restart
           path: ./backend/auth/
           target: /auth/
+    environment:
+      - VAULT_ROLEID=${AUTH_RID}
+      - VAULT_SECRETID=${AUTH_SID}
     env_file:
-      - auth.env
       - .env
+    volumes:
+      - auth-ssl:/etc/ssl
+      - media-files:/media
+      - static-files:/static
+      - vault-ca:/ca
   auth-db:
     <<: *db
     container_name: auth-db
-    env_file:
-      - auth.env
+    environment:
+      - DB_NAME=auth
     volumes:
       - auth-db:/var/lib/postgresql/data
   pong:
@@ -85,22 +123,26 @@ services:
       args:
         APP_NAME: pong
         HOST: ${HOSTNAME}
-    depends_on:
-      pong-db:
-          condition: service_healthy
     develop:
       watch:
         - action: sync+restart
           path: ./backend/pong/
           target: /pong/
+    environment:
+      - VAULT_ROLEID=${PONG_RID}
+      - VAULT_SECRETID=${PONG_SID}
     env_file:
-      - pong.env
       - .env
+    volumes:
+      - media-files:/media
+      - pong-ssl:/etc/ssl
+      - static-files:/static
+      - vault-ca:/ca
   pong-db:
     <<: *db
     container_name: pong-db
-    env_file:
-      - pong.env
+    environment:
+      - DB_NAME=pong
     volumes:
       - pong-db:/var/lib/postgresql/data
 
@@ -110,13 +152,16 @@ networks:
     driver: bridge
 
 volumes:
-  ssl-keys:
-    driver: local
-  static-files:
-    driver: local
-  media-files:
-    driver: local
   auth-db:
-    driver: local
+  auth-ssl:
+  media-files:
+  nginx-ssl:
   pong-db:
-    driver: local
+  pong-ssl:
+  static-files:
+  vault-ca:
+  vault-config:
+  vault-data:
+  vault-pki:
+  vault-secrets:
+  vault-ssl:

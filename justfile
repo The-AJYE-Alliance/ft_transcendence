@@ -81,3 +81,5 @@ _after:
     @echo "{{RED}}╚═══════════════════════════════════════════════════════════╝{{RESET}}"
 
 reload: down build up
+
+reset: rm build up

@@ -12,7 +12,7 @@ class User(AbstractUser, PermissionsMixin):
 	# avatar = models.URLField(blank=True, null=True, default='default_avatar_url')
 	friends = models.ManyToManyField('self', related_name='friend_set', symmetrical=False, blank=True)
 	is_online = models.BooleanField(default=False)
-	avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, default='media/avatars/default_avatar.png')
+	avatar = models.ImageField(upload_to='media/avatars/', blank=True, null=True, default='media/avatars/default_avatar.png')
 
 	USERNAME_FIELD = 'username'
 	REQUIRED_FIELDS = ['email', 'nickname']

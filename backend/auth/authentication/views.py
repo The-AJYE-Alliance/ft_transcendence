@@ -32,23 +32,23 @@ class UserViewSet(viewsets.ModelViewSet):
 		return [permission() for permission in permission_classes]
      
 	@action(detail=False, methods=['post'], permission_classes=[AllowAny], url_path='register')
-	def register(self, request):
-		data = request.data
-		user = User.objects.create_user(
-            username=data['username'],
-            email=data['email'],
-            password=data['password'],
-            nickname=data['nickname'],
-        )
+	#def register(self, request):
+	#	data = request.data
+	#	user = User.objects.create_user(
+    #        username=data['username'],
+    #        email=data['email'],
+    #        password=data['password'],
+    #        nickname=data['nickname'],
+    #    )
             
-		friends_ids = data.get('friends', [])
+	#	friends_ids = data.get('friends', [])
         
         # Ajouter les amis à l'utilisateur (s'ils existent)
-		if friends_ids:
-			friends = User.objects.filter(id__in=friends_ids)
-			user.friends.add(*friends) 
-		user.save() 
-		return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
+	#	if friends_ids:
+	#		friends = User.objects.filter(id__in=friends_ids)
+	#		user.friends.add(*friends) 
+	#	user.save() 
+	#	return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
      
 	@action(detail=False, methods=['post'], permission_classes=[AllowAny], url_path='login/42')
 	def login_with_42(self, request):
@@ -99,6 +99,28 @@ class UserViewSet(viewsets.ModelViewSet):
 			'refresh': str(refresh),
 			'user': UserSerializer(user).data,
 		}, status=status.HTTP_200_OK)
+
+class RegisterView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        data = request.data
+        user = User.objects.create_user(
+            username=data['username'],
+            email=data['email'],
+            password=data['password'],
+            nickname=data['nickname'],
+        )
+
+        # Ajout des amis si fourni
+        friends_ids = data.get('friends', [])
+        if friends_ids:
+            friends = User.objects.filter(id__in=friends_ids)
+            user.friends.add(*friends)
+
+        user.save()
+
+        return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
 
 
 class CookieTokenRefreshSerializer(TokenRefreshSerializer):

@@ -16,7 +16,7 @@ ls:
 
 build: _env
 	@echo "{{BLUE}}██████████████████████ Building Images ███████████████████████{{RESET}}"
-	{{DOCKER}} build
+	@{{DOCKER}} build
 
 up: _env _before && _after
     #!/usr/bin/env bash
@@ -40,27 +40,22 @@ stop:
 
 start:
 	@echo "{{RED}}████████████████████ Starting Containers █████████████████████{{RESET}}"
-	{{DOCKER}} start
+	@{{DOCKER}} start
 
 down:
 	@echo "{{RED}}██████████████████ Removing All Containers ██████████████████{{RESET}}"
-	{{DOCKER}} down --remove-orphans
+	@{{DOCKER}} down --remove-orphans
 
 rm:
 	@echo "{{RED}}██████████████████ Removing All Containers and Volumes ██████████████████{{RESET}}"
-	{{DOCKER}} down --remove-orphans -v
+	@{{DOCKER}} down --remove-orphans -v
 
 watch: build
     @echo "{{GREEN}}██████████████████████ Watching Containers... ██████████████████████{{RESET}}"
-    {{DOCKER}} up --watch
+    @{{DOCKER}} up --watch
 
 shell c="":
     {{DOCKER}} exec -it {{c}} sh
-
-migrations:
-    @echo "{{BLUE}}██████████████████████ Making Migrations ██████████████████████{{RESET}}"
-    python ./backend/auth/manage.py makemigrations
-    python ./backend/pong/manage.py makemigrations
 
 _env:
     #!/usr/bin/env bash
@@ -68,8 +63,6 @@ _env:
     if test ! -e .env; then
       echo -e "{{YELLOW}}Copying .env files...{{RESET}}\n"
       cp .env.example .env
-      cp auth.env.example auth.env
-      cp pong.env.example pong.env
     fi
 
 _before:

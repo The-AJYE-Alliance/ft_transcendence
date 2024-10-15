@@ -26,7 +26,11 @@ for app in "${apps[@]}"; do
 done
 
 docker --log-level ERROR compose up -d auth-db pong-db
-sleep 5
+
+until docker exec -it auth-db pg_isready &> /dev/null && docker exec -it pong-db pg_isready &> /dev/null; do
+  true
+done
+
 init_db &> /dev/null
 
 env "${ENVS[@]}" docker compose up -d

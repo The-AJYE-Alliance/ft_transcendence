@@ -52,6 +52,7 @@ services:
       - nginx-ssl:/etc/ssl
       - static-files:/static
       - vault-ca:/ca
+      - ./frontend/static:/usr/share/nginx/html/static
     ports:
       - "80:80"
       - "443:443"
@@ -108,6 +109,7 @@ services:
       - media-files:/media
       - static-files:/static
       - vault-ca:/ca
+      - ./frontend/static:/auth/frontend/static
   auth-db:
     <<: *db
     container_name: auth-db

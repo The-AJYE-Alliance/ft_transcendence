@@ -1,10 +1,56 @@
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication</title>
+    <link rel="stylesheet" href="static/css/styles.css">
 </head>
 <body>
+    <!-- Page d'accueil -->
+    <div id="homepage">
+        <div class="welcome-box">
+            <h1>Welcome to Transcendance</h1>
+            <button id="go-to-login">Login</button>
+            <button id="go-to-register">Register</button>
+        </div>
+    </div>
 
+    <!-- Page de connexion -->
+    <div id="login-page" class="auth-page" style="display: none;">
+        <h2>Login</h2>
+        <form id="form-login">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+        <button id="login-42">Login with 42</button>
+    </div>
+
+    <!-- Page d'inscription -->
+    <div id="register-page" class="auth-page" style="display: none;">
+        <h2>Register</h2>
+        <form id="form-register">
+            <label for="username-register">Username:</label>
+            <input type="text" id="username-register" name="username" required>
+            
+            <label for="email-register">Email:</label>
+            <input type="email" id="email-register" name="email" required>
+
+            <label for="password-register">Password:</label>
+            <input type="password" id="password-register" name="password" required>
+
+            <label for="nickname-register">Nickname:</label>
+            <input type="text" id="nickname-register" name="nickname" required>
+
+            <button type="submit">Register</button>
+        </form>
+    </div>
+
+    <script src="static/js/app.js"></script>
 </body>
 </html>

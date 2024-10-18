@@ -100,6 +100,7 @@ class UserViewSet(viewsets.ModelViewSet):
             'user': UserSerializer(user).data,
         }, status=status.HTTP_200_OK)
 
+
 class RegisterView(CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]

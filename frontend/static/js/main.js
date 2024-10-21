@@ -58,3 +58,68 @@ router.get('/login', () => {
     });
 });
 
+router.get('/register', async () => {
+    const response = await fetch('https://auth.api.transcendence.local/users/', {
+        method: 'GET',
+        credentials: 'include'
+    });
+    const users = await response.json();
+
+    // Convertir la liste d'utilisateurs en options pour le select (menu déroulant)
+    const friendsOptions = users.map(user => ({
+        value: user.id,
+        text: user.username + ' (' + user.nickname + ')',
+    }));
+    const registerForm = createForm({
+        action: '/register/',
+        method: 'POST',
+        fields: [
+            { type: 'text', name: 'username', placeholder: 'Enter your username', label: 'Username:' },
+            { type: 'email', name: 'email', placeholder: 'Enter your email', label: 'Email:' },
+            { type: 'password', name: 'password', placeholder: 'Enter your password', label: 'Password:' },
+            { type: 'text', name: 'nickname', placeholder: 'Enter your nickname', label: 'Nickname:' },
+            { type: 'file', name: 'avatar', label: 'Avatar:' },
+            {
+                type: 'select',
+                name: 'friends',
+                label: 'Friends:',
+                multiple: true,
+                options: friendsOptions,
+            }
+        ],
+        submitText: 'Register'
+    });
+    app.innerHTML = '';
+    app.appendChild(registerForm);
+
+    registerForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(registerForm);
+        const selectedFriends = Array.from(formData.getAll('friends'));
+        formData.set('friends', selectedFriends);
+
+        try {
+            const response = await fetch('https://auth.api.transcendence.local/register/', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include',
+            });
+            const result = await response.json();
+            console.log('Registration successful:', result);
+        } catch (error) {
+            console.error('Error during registration:', error);
+        }
+    });
+});
+
+router.get('/login/42', () => {
+    const oauthButton = document.createElement('button');
+    oauthButton.textContent = 'Log in with 42';
+    oauthButton.addEventListener('click', () => {
+        window.location.href = 'https://auth.api.transcendence.local/login/42/'; // Rediriger vers l'URL OAuth de 42
+    });
+
+    app.innerHTML = '';
+    app.appendChild(oauthButton);
+});

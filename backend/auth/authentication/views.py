@@ -106,11 +106,14 @@ class RegisterView(CreateAPIView):
 
     def post(self, request):
         data = request.data
+        avatar = request.FILES.get('avatar')
+
         user = User.objects.create_user(
             username=data['username'],
             email=data['email'],
             password=data['password'],
             nickname=data['nickname'],
+            avatar=avatar,
         )
 
         # Ajout des amis si fourni
@@ -123,6 +126,13 @@ class RegisterView(CreateAPIView):
 
         return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
 
+class UserListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        users = User.objects.all()
+        user_data = [{"id": user.id, "username": user.username, "nickname": user.nickname} for user in users]
+        return Response(user_data, status=200)
 
 class CookieTokenRefreshSerializer(TokenRefreshSerializer):
     refresh = None

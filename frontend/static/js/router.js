@@ -103,4 +103,39 @@ class Router {
         const startsWithHash = regEx.test(string)
         return Boolean(startsWithHash)
     }
+
+    #getParams(pattern, url) {
+        const parsedPattern = this.#paths[pattern].reg
+        const regex = new RegExp(parsedPattern, 'i')
+        const tokens =  this.#transformRegexOutput(regex.exec(pattern))
+        const params = this.#transformRegexOutput(regex.exec(url))
+        return this.#mergeObjects(tokens, params)
+    }
+
+    #processURL(pattern, url) {
+        this.#previousPath = url
+        const result = this.#getParams(pattern, url)
+        return this.#paths[pattern].callbacks.forEach(callback => callback(result))
+    }
+
+    #checkPatterns(url) {
+        const hashTag = /#\S+\b/gm
+        const urlHashExtract = hashTag.exec(url)
+        const targetUrl = urlHashExtract ? url.replace(urlHashExtract[0], '') : url
+
+        const result = Object.keys(this.#paths).find(this.#checkIfAnyPatternIsMatching(targetUrl))
+        if (!result) {
+            this.#handleError()
+            return false
+        }
+
+        if (this.#previousPath === targetUrl) {
+            return false
+        }
+
+        this.#processURL(result, targetUrl)
+        return true
+    }
 }
+
+export default Router

@@ -30,6 +30,18 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsAdminUser]
         return [permission() for permission in permission_classes]
+    
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated], url_path='list-friends')
+    def list_friends(self, request):
+        # Obtenir l'utilisateur actuel
+        user = request.user
+        
+        # Filtrer les utilisateurs qui ne sont pas encore amis
+        potential_friends = User.objects.exclude(friends=user).exclude(id=user.id)
+        
+        # Retourner les utilisateurs dans la réponse
+        serializer = self.get_serializer(potential_friends, many=True)
+        return Response(serializer.data)
      
 # @action(detail=False, methods=['post'], permission_classes=[AllowAny], url_path='register')
     #def register(self, request):
@@ -125,14 +137,6 @@ class RegisterView(CreateAPIView):
         user.save()
 
         return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
-
-class UserListView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        users = User.objects.all()
-        user_data = [{"id": user.id, "username": user.username, "nickname": user.nickname} for user in users]
-        return Response(user_data, status=200)
 
 class CookieTokenRefreshSerializer(TokenRefreshSerializer):
     refresh = None

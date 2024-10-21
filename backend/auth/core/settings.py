@@ -92,6 +92,7 @@ CORS_ALLOW_HEADERS = [
     'cookie',
 ]
 
+
 ROOT_URLCONF = 'core.urls'
 
 TEMPLATES = [

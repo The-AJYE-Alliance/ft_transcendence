@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from django.conf.urls.static import static
 
-from .views import UserViewSet, LogoutView, CookieTokenRefreshView, CookieTokenObtainPairView, RegisterView, UserListView
+from .views import UserViewSet, LogoutView, CookieTokenRefreshView, CookieTokenObtainPairView, RegisterView
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
@@ -19,7 +19,6 @@ urlpatterns = [
     path('login/42/', UserViewSet.as_view({'post': 'login_with_42'}), name='login_with_42'),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     #path('auth/42/callback/', handle_42_callback, name='handle_42_callback'),
-    path('users/', UserListView.as_view(), name='user-list'),
 ]
 
 if settings.DEBUG:

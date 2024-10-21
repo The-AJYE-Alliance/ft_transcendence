@@ -1,7 +1,11 @@
+import { loadHTML } from './utils.js';
+import { createForm } from './utils.js';
+
 class Router {
-    constructor() {
-        this.get('/', () => {})
-        this.get('/404', () => {})
+    constructor(app) {
+        this.app = app; 
+        //this.get('/', () => {})
+        //this.get('/404', () => {})
 
         document.addEventListener('click', (event) => {
             const target = event.target.closest('a')

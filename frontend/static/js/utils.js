@@ -11,3 +11,34 @@ export async function loadHTML(filePath) {
         return '<p>Error loading content</p>'; // Return a default error message
     }
 }
+
+export function createForm({ action = '', method = 'GET', fields = [], submitText = 'Submit' }) {
+    const form = document.createElement('form');
+    form.action = action;
+    form.method = method;
+
+    fields.forEach(field => {
+        const input = document.createElement('input');
+        input.type = field.type || 'text';
+        input.name = field.name || '';
+        input.placeholder = field.placeholder || '';
+        if (field.value)
+            input.value = field.value;
+        if (field.label) {
+            const label = document.createElement('label');
+            label.textContent = field.label;
+            label.setAttribute('for', field.name);
+            form.appendChild(label);
+        }
+
+        form.appendChild(input);
+        form.appendChild(document.createElement('br'));
+    });
+
+    const submitButton = document.createElement('button');
+    submitButton.type = 'submit';
+    submitButton.textContent = submitText;
+    form.appendChild(submitButton);
+
+    return form;
+}

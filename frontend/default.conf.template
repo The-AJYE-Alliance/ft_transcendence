@@ -57,8 +57,8 @@ server {
     }
 
     location @index {
-        add_header Cache-Control no-cache;
-        expires 0;
+        add_header Cache-Control 'no-store, no-cache';
+        expires off;
         try_files /index.html =404;
     }
 }

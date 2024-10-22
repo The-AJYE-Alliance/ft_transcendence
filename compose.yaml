@@ -39,15 +39,11 @@ services:
     depends_on:
       auth:
         condition: service_healthy
-    develop:
-      watch:
-        - action: sync+restart
-          path: ./frontend
-          target: /usr/share/nginx/html
     environment:
       - APP_RID=${NGINX_RID}
       - APP_SID=${NGINX_SID}
     volumes:
+      - ./frontend/static:/usr/share/nginx/html
       - media-files:/media
       - nginx-ssl:/etc/ssl
       - static-files:/static

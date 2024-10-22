@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'vault12factor',
     'corsheaders',
+    'channels',
 ]
 
 REST_FRAMEWORK = {

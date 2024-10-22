@@ -17,7 +17,6 @@ from vault12factor import DjangoAutoRefreshDBCredentialsDict, VaultAuth12Factor,
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -33,7 +32,6 @@ VAULT_DATABASE_PATH = 'database/creds/auth'
 VAULT_CACERT = '/ca/ca.pem'
 DATABASE_URL = 'postgres://auth-db:5432/auth'
 DATABASE_OWNERROLE = 'auth'
-
 
 # Application definition
 
@@ -62,12 +60,12 @@ INSTALLED_APPS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-		'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
 }
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', 
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -81,8 +79,7 @@ MIDDLEWARE = [
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    "https://transcendence.local",
-    "https://auth.api.transcendence.local",
+    "https://transcendence.local"
 ]
 
 CORS_ALLOW_HEADERS = [
@@ -92,6 +89,9 @@ CORS_ALLOW_HEADERS = [
     'cookie',
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://transcendence.local"
+]
 
 ROOT_URLCONF = 'core.urls'
 
@@ -113,12 +113,11 @@ TEMPLATES = [
 
 ASGI_APPLICATION = 'core.asgi.application'
 
-
 VAULT = VaultAuth12Factor.fromenv()
 CREDS = VaultCredentialProvider(os.getenv("VAULT_ADDR"), VAULT,
-                                    "database/creds/auth",
-                                    os.getenv("VAULT_CACERT", None), True,
-                                    DEBUG)
+                                "database/creds/auth",
+                                os.getenv("VAULT_CACERT", None), True,
+                                DEBUG)
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -134,7 +133,6 @@ DATABASES = {
         'SET_ROLE': 'owner'
     }),
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -163,7 +161,6 @@ SIMPLE_JWT = {
 
 AUTH_USER_MODEL = 'authentication.User'
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -174,7 +171,6 @@ TIME_ZONE = 'Europe/Paris'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

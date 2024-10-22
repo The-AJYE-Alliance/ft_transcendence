@@ -14,31 +14,52 @@ export async function loadHTML(filePath) {
 
 export function createForm({ action = '', method = 'GET', fields = [], submitText = 'Submit' }) {
     const form = document.createElement('form');
-    form.action = action;
-    form.method = method;
+    form.setAttribute('action', action);
+    form.setAttribute('method', method);
 
-    fields.forEach(field => {
-        const input = document.createElement('input');
-        input.type = field.type || 'text';
-        input.name = field.name || '';
-        input.placeholder = field.placeholder || '';
+    fields.forEach(field =>
+    {
+        let input;
+        const fieldId = field.name || '';
+        if (field.type === 'textarea')
+            input = document.createElement('textarea');
+        else if (field.type === 'select')
+        {
+            input = document.createElement('select');
+            field.options.forEach(optionData => {
+                const option = document.createElement('option');
+                option.value = optionData.value;
+                option.textContent = optionData.text;
+                input.appendChild(option);
+            });
+        }
+        else
+        {
+            input = document.createElement('input');
+            input.setAttribute('type', field.type || 'text');
+        }
+        input.setAttribute('id', fieldId);
+        input.setAttribute('name', field.name || '');
+        input.setAttribute('placeholder', field.placeholder || '');
+        if (field.autocomplete)
+            input.setAttribute('autocomplete', field.autocomplete);
+        else
+            input.setAttribute('autocomplete', 'on');
         if (field.value)
             input.value = field.value;
-        if (field.label) {
+        if (field.label)
+        {
             const label = document.createElement('label');
             label.textContent = field.label;
-            label.setAttribute('for', field.name);
+            label.setAttribute('for', fieldId);
             form.appendChild(label);
         }
-
         form.appendChild(input);
         form.appendChild(document.createElement('br'));
     });
-
     const submitButton = document.createElement('button');
-    submitButton.type = 'submit';
+    submitButton.setAttribute('type', 'submit');
     submitButton.textContent = submitText;
     form.appendChild(submitButton);
-
     return form;
 }

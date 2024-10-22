@@ -1,5 +1,5 @@
-import {loadHTML} from './utils.js'
-import { createForm } from './utils.js';
+import {loadHTML, createForm} from './utils.js'
+import {pong} from './pong.js'
 import Router from './router.js'
 
 //const app = document.getElementById('app');
@@ -107,3 +107,5 @@ router.get('/login/42', () => {
     app.innerHTML = '';
     app.appendChild(oauthButton);
 });
+
+router.get('/pong', pong);

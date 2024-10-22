@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -ex
 
 ENVS=()
 SERVICE_APPS=("auth pong")
@@ -27,9 +27,10 @@ done
 
 docker --log-level ERROR compose up -d auth-db pong-db
 
-until docker exec -it auth-db pg_isready &> /dev/null && docker exec -it pong-db pg_isready &> /dev/null; do
-  true
-done
+sleep 10
+#until docker exec -it auth-db pg_isready &> /dev/null && docker exec -it pong-db pg_isready &> /dev/null; do
+#  true
+#done
 
 init_db &> /dev/null
 

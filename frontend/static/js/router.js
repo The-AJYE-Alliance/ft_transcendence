@@ -38,6 +38,11 @@ class Router {
     #paths = {}
     #previousPath = null
 
+    navigate(path) {
+    window.history.pushState(null, null, path);
+    this.#checkPatterns(path);
+    }
+
     #redirect(url) {
         if (url === '/404') {
             window.history.replaceState(null, null, url)

@@ -63,3 +63,4 @@ router.get('/register', () => {
     });
 });
 
+window.router = router;

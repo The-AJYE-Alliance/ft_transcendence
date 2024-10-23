@@ -1,7 +1,6 @@
 import {loadHTML} from './utils.js'
-import { createForm } from './utils.js';
 import Router from './router.js'
-import { createAndHandleForm, processLoginData } from './auth.js';
+import { createAndHandleForm, processLoginData } from './utils.js';
 
 
 const router = new Router()
